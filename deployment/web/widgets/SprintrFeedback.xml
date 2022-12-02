@@ -1,0 +1,722 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<widget
+  id="SprintrFeedbackWidget.SprintrFeedback"
+  needsEntityContext="false"
+  xmlns="http://www.mendix.com/widget/1.0/"
+>
+  <name>Feedback &amp; Collaboration Widget</name>
+  <description>Widget to send feedback and collaborate with others on your Mendix Project</description>
+  <icon>/9j/4QAYRXhpZgAASUkqAAgAAAAAAAAAAAAAAP/sABFEdWNreQABAAQAAABkAAD/7gAOQWRvYmUAZMAAAAAB/9sAhAABAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAgICAgICAgICAgIDAwMDAwMDAwMDAQEBAQEBAQIBAQICAgECAgMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwP/wAARCAAQABADAREAAhEBAxEB/8QAbQAAAwEAAAAAAAAAAAAAAAAAAgMECgEAAgMAAAAAAAAAAAAAAAAABQYBAwcQAAICAwEBAAMAAAAAAAAAAAMFBAYBAgcRCBMUFxEAAgICAQMEAwEAAAAAAAAAAQIDBAUGERIiEwAhIwcxQhQV/9oADAMBAAIRAxEAPwDZH37uT/nTyorYiUi/pRXpv5tXJzaKCnfQkHMfywcwRWY2Qgr/AEeSvxiWsjMgx/WEUWgSSAkL6lZ7N2qNqGCOMpkvITCrMBFbXjvhWT9JeO5A4HeoALKT6ynctsyGHv1asEJjz5mJqxs4FfIpx8tVJvxFZK8SRLKq/IihTIrN6Hgva7beHtnUtq8Zh1EjaPL6QggNI5aL89KNxb4rHMnFq0/KGy9DjrcZlso6wEj1jKNqUkYAw+abjdLzuN1iHb92ZKDZRTJUrc+SaSIeydCDgLEPy88pQO5bxLIAAAWmfZNnYdhvYClA13Zq84GQ6HAo4gcfFSksEHz3QnfLFXjkIldhK0CBPTu6fNZ+lvkM9c5f63ttPkr9utzpAZE3iVAyLBLMPjabI9K/VL9bA4ErjttYpmYgnNIJIJ+voLadLr6zhdhO67FXjyeRoIWqV7HfC07e0fVEOFEMXvLL+8pVImfpckX/AGV9eZHbvFj8Xat18ndkMc2RVgJcdRA5nXHDjx17lnsrxzhDKiPJMXYxKpl4T8ySucWF22dvLAXpCWZGUf2RbIFDl915zpqQtTF2hDgZK1a7/UY2xVUprtEEzIOOKUKSLErcWr1t29rnqsccMUH+POpf+JlJWhZ5+X+F+RJBXlPEqQq5hBZo2jbxhvQ367+pn1O/NNZntDZKrrGMmj8Pl6XHwf6sZBhtXYB1V5LLRiwwRJkmTzMg/9k=</icon>
+  <properties>
+        <!--Authentication-->
+        <property key="decryptedTokenEntity" type="entity" required="false" allowNonPersistableEntities="true">
+            <caption>Decrypted Token Entity</caption>
+            <category>MendixSSO Authentication</category>
+            <description>The entity for the Decrypted Token of MendixSSO.</description>
+        </property>
+        <property key="decryptedTokenValue" type="attribute" entityProperty="decryptedTokenEntity" required="false">
+            <caption>Decrypted Token Value</caption>
+            <category>MendixSSO Authentication</category>
+            <description>The Value attribute of Decrypted Token of MendixSSO</description>
+            <attributeTypes>
+                 <attributeType name="String" />
+            </attributeTypes>
+        </property>
+        <property key="idTokenProviderMf" type="microflow" required="false">
+            <caption>ID token provider</caption>
+            <category>MendixSSO Authentication</category>
+            <description>Microflow that will return the MendixSSO ID token. Required by App Switcher.</description>
+            <returnType type="Object" entityProperty="decryptedTokenEntity" />
+        </property>
+        <property key="userProviderMf" type="microflow" required="false">
+            <caption>User object provider</caption>
+            <category>Custom Authentication</category>
+            <description>Microflow that will return the User object for authentication if you do not use MendixSSO for authentication</description>
+            <returnType type="Object" entityProperty="userEntity" />
+        </property>
+        <property key="userEntity" type="entity" required="false" allowNonPersistableEntities="true">
+            <caption>User Object</caption>
+            <category>Custom Authentication</category>
+            <description>Entity that contains user name and email address attributes, that are used to prefill the user’s identity in the ‘Feedback’ submit form.</description>
+        </property>
+        <property key="usernameAttribute" type="attribute" entityProperty="userEntity" required="false">
+            <caption>User name attribute</caption>
+            <category>Custom Authentication</category>
+            <description>Username attribute of User Object</description>
+            <attributeTypes>
+                 <attributeType name="String" />
+            </attributeTypes>
+        </property>
+        <property key="emailAttribute" type="attribute" entityProperty="userEntity" required="false">
+            <caption>Email attribute</caption>
+            <category>Custom Authentication</category>
+            <description>Email address attribute of User Object</description>
+            <attributeTypes>
+                 <attributeType name="String" />
+            </attributeTypes>
+        </property>
+        <!-- PROJECT CONFIGURATION -->
+        <property key="sprintrapp" type="string" required="true" defaultValue="1">
+            <caption>App ID</caption>
+            <category>Project</category>
+            <description>The App ID is a hash that uniquely identifies your app project. You can find this ID in Settings > General in the Developer Portal.</description>
+        </property>
+        <property key="appName" type="string" required="true" defaultValue="">
+            <caption>App name</caption>
+            <category>Project</category>
+            <description>The app project name used when sharing your app.</description>
+        </property>
+        <property key="allowScreenshot" type="boolean" defaultValue="true">
+            <caption>Allow screenshots</caption>
+            <category>Project</category>
+            <description>If you are not allowed to send screenshots when submitting feedback (for legal reasons, etc.), set this to ‘No’.</description>
+        </property>
+        <property key="hideLogo" type="boolean" defaultValue="false">
+            <caption>Hide Mendix logo</caption>
+            <category>Project</category>
+            <description>For customized branding, you can remove the Mendix logo from the widget.</description>
+        </property>
+        <!-- COLLABORATION -->
+        <property key="allowEdit" type="boolean" defaultValue="true">
+            <caption>Edit button</caption>
+            <category>Collaboration</category>
+            <description>Add the ‘Edit’ button to the widget menu for editing in the Web Modeler.</description>
+        </property>
+        <property key="allowMobileShare" type="boolean" defaultValue="true">
+            <caption>Mobile view button</caption>
+            <category>Collaboration</category>
+            <description>Add the ‘Mobile view’ button to the widget menu for opening your application via the Mendix mobile app.</description>
+        </property>
+        <property key="allowNormalShare" type="boolean" defaultValue="true">
+            <caption>Share button</caption>
+            <category>Collaboration</category>
+            <description>Add the ‘Share’ button to the widget menu for sharing your Mendix application.</description>
+        </property>
+        <!-- ADVANCED -->
+        <property key="sprintrServer" type="string" required="true" defaultValue="https://sprintr.home.mendix.com/">
+            <caption>Feedback server location</caption>
+            <category>Advanced</category>
+            <description>You can configure a new feedback server location if necessary, but Mendix recommends leaving this set to the default at https://sprintr.home.mendix.com/.</description>
+        </property>
+        <property key="screenshotForeignObjectRendering" type="boolean" defaultValue="true">
+            <caption>Screenshot foreign rendering</caption>
+            <category>Advanced</category>
+            <description>This is enabled by default and an option in HTML2Canvas. Only disable this when you experience problems with creating screenshots.</description>
+        </property>
+        <property key="scrollableAreaSelector" type="string"  required="false" defaultValue=".mx-scrollcontainer-fixed > .mx-scrollcontainer-middle > .mx-scrollcontainer-wrapper">
+            <caption>CSS selector for a scrollable area</caption>
+            <category>Advanced</category>
+            <description>If you use internal scrolling inside of a div container, screenshot feature might not work correctly. This allows you to specify this area with the CSS selector.</description>
+        </property>
+        <property key="hasCreateAppButton" type="boolean" defaultValue="true">
+            <caption>Show Create New App button</caption>
+            <category>Advanced</category>
+            <description>App Switcher modal will provide a button that allows the user to create a new Mendix app.</description>
+        </property>
+        
+        <!--property key="accessTokenProviderMf" type="microflow" required="false">
+            <caption>Access token provider</caption>
+            <category>Advanced</category>
+            <description>Microflow that fetches the access token. Required by Invite.</description>
+            <returnType type="String" />
+        </property-->
+        <!--property key="renewAccessTokenMf" type="microflow" required="false">
+            <caption>Renew access token</caption>
+            <category>Advanced</category>
+            <description>Microflow that renews the access token when current one is expired. Required by Invite.</description>
+            <returnType type="String" />
+        </property-->
+        <!--property key="isInviteEnabled" type="boolean" defaultValue="true">
+            <caption>Show Invite tab</caption>
+            <category>Advanced</category>
+            <description>If the above microflows are configured, show the invite tab in the Share module.</description>
+        </property -->
+        <property key="isAppSwitcherEnabled" type="boolean" defaultValue="true">
+            <caption>Show App Switcher button</caption>
+            <category>Advanced</category>
+            <description>If the above microflows are configured, show the App Switcher button.</description>
+        </property>
+        <!-- PRODUCTION -->
+        <property key="inProductionMf" type="microflow" required="false">
+            <caption>Production microflow</caption>
+            <category>Production</category>
+            <description>An optional microflow that can be used to determine if the widget runs in production (for example, by using a constant). The return type for this microflow is a Boolean. In production, the ‘Edit’ and ‘Mobile view’ buttons are disabled by default, ‘Feedback’ is always enabled, and ‘Share’ is optional.</description>
+            <returnType type="Boolean" />
+        </property>
+        <property key="shareInProduction" type="boolean" defaultValue="false">
+            <caption>Share in production</caption>
+            <category>Production</category>
+            <description>Enable or disable sharing of the app in production.</description>
+        </property>
+        <!-- Translation -->
+        <property key="translation_Cancel" type="translatableString" required="false">
+            <caption>Cancel</caption>
+            <category>Translation Common</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Cancel</translation>
+                <translation lang="nl_NL">Annuleren</translation>
+            </translations>
+        </property>
+        <property key="translation_Add" type="translatableString" required="false">   
+            <caption>Add</caption>
+            <category>Translation Common</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Add</translation>
+                <translation lang="nl_NL">Toevoegen</translation>
+            </translations>
+        </property>
+        <property key="translation_Delete" type="translatableString" required="false">   
+            <caption>Delete</caption>
+            <category>Translation Common</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Delete</translation>
+                <translation lang="nl_NL">Verwijderen</translation>
+            </translations>
+        </property>
+        <property key="translation_Send" type="translatableString" required="false">
+            <caption>Send</caption>
+            <category>Translation Common</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Send</translation>
+                <translation lang="nl_NL">Versturen</translation>
+            </translations>
+        </property>
+        <property key="translation_back" type="translatableString" required="false">
+            <caption>back</caption>
+            <category>Translation Common</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">back</translation>
+                <translation lang="nl_NL">terug</translation>
+            </translations>
+        </property>
+        <property key="translation_Continue" type="translatableString" required="false">
+            <caption>Continue</caption>
+            <category>Translation Common</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Continue</translation>
+                <translation lang="nl_NL">Doorgaan</translation>
+            </translations>
+        </property>
+        <property key="translation_Feedback" type="translatableString" required="false">
+            <caption>Feedback</caption>
+            <category>Translation Common</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Feedback</translation>
+                <translation lang="nl_NL">Feedback</translation>
+            </translations>
+        </property>
+        <property key="translation_Edit" type="translatableString" required="false">
+            <caption>Edit</caption>
+            <category>Translation Common</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Edit</translation>
+                <translation lang="nl_NL">Bewerken</translation>
+            </translations>
+        </property>
+        <property key="translation_Mobile" type="translatableString" required="false">
+            <caption>Mobile</caption>
+            <category>Translation Common</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Mobile</translation>
+                <translation lang="nl_NL">Mobiel</translation>
+            </translations>
+        </property>
+        <property key="translation_Name" type="translatableString" required="false">
+            <caption>Name</caption>
+            <category>Translation Common</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Name</translation>
+                <translation lang="nl_NL">Naam</translation>
+            </translations>
+        </property>
+        <property key="translation_Email_Address" type="translatableString" required="false">
+            <caption>Email Address</caption>
+            <category>Translation Common</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Email Address</translation>
+                <translation lang="nl_NL">E-mailadres</translation>
+            </translations>
+        </property>
+        <property key="translation_You_are_now_in_feedback_mode" type="translatableString" required="false">
+            <caption>You are now in feedb...</caption>
+            <category>Translation Common</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">You are now in feedback mode.</translation>
+                <translation lang="nl_NL">U zit nu in de feedbackmodus.</translation>
+            </translations>
+        </property>
+        <property key="translation_Click_anywhere_on_the_screen_to_leave_a_comment" type="translatableString" required="false">
+            <caption>Click anywhere on th...</caption>
+            <category>Translation Common</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Click anywhere on the screen to leave a comment.</translation>
+                <translation lang="nl_NL">Klik ergens op het scherm om een opmerking achter te laten.</translation>
+            </translations>
+        </property>
+        <property key="translation_Exit_Feedback_Mode" type="translatableString" required="false">
+            <caption>Exit Feedback Mode</caption>
+            <category>Translation Common</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Exit Feedback Mode</translation>
+                <translation lang="nl_NL">Verlaat de feedbackmodus</translation>
+            </translations>
+        </property>
+        <property key="translation_Sign_in_to_Mendix" type="translatableString" required="false">
+            <caption>Sign in to Mendix</caption>
+            <category>Translation Common</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Sign in to Mendix</translation>
+                <translation lang="nl_NL">Login bij Mendix</translation>
+            </translations>
+        </property>
+        <property key="translation_Add_a_comment" type="translatableString" required="false">
+            <caption>Add a comment</caption>
+            <category>Translation Remark</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Add a comment</translation>
+                <translation lang="nl_NL">Voeg een reactie toe</translation>
+            </translations>
+        </property>
+        <property key="translation_Include_a_screenshot_of_the_current_page" type="translatableString" required="false">
+            <caption>Include a screenshot...</caption>
+            <category>Translation Remark</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Include a screenshot of the current page</translation>
+                <translation lang="nl_NL">Voeg een screenshot van de huidige pagina toe</translation>
+            </translations>
+        </property>
+        <property key="translation_Screenshots_have_been_disabled_for_the_feedback_mode" type="translatableString" required="false">
+            <caption>Screenshots have bee...</caption>
+            <category>Translation Remark</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Screenshots have been disabled for the feedback mode</translation>
+                <translation lang="nl_NL">Schermafbeeldingen zijn uitgeschakeld voor de feedbackmodus</translation>
+            </translations>
+        </property>
+        <property key="translation_Share_your_app" type="translatableString" required="false">
+            <caption>Share your app</caption>
+            <category>Translation Share</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Share your app</translation>
+                <translation lang="nl_NL">Deel jouw app</translation>
+            </translations>
+        </property>
+        <property key="translation_Share" type="translatableString" required="false">
+            <caption>Share</caption>
+            <category>Translation Share</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Share</translation>
+                <translation lang="nl_NL">Delen</translation>
+            </translations>
+        </property>
+        <property key="translation_URL" type="translatableString" required="false">
+            <caption>URL</caption>
+            <category>Translation Share</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">URL</translation>
+                <translation lang="nl_NL">URL</translation>
+            </translations>
+        </property>
+        <property key="translation_Share_this_app_with_more_people" type="translatableString" required="false">
+            <caption>Share this app with ...</caption>
+            <category>Translation Share</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Share this app with more people</translation>
+                <translation lang="nl_NL">Deel deze app met meer mensen</translation>
+            </translations>
+        </property>
+        <property key="translation_Emails_separate_by_comma" type="translatableString" required="false">
+            <caption>Emails (separate by ...</caption>
+            <category>Translation Share</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Emails (separate by comma)</translation>
+                <translation lang="nl_NL">E-mailadressen (gescheiden door komma)</translation>
+            </translations>
+        </property>
+        <!--
+        <property key="translation_Invite" type="translatableString" required="false">
+            <caption>Invite</caption>
+            <category>Translation Share</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Invite</translation>
+                <translation lang="nl_NL">Uitnodigen</translation>
+            </translations>
+        </property>
+        <property key="translation_Invited" type="translatableString" required="false">
+            <caption>Invited</caption>
+            <category>Translation Share</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">invited</translation>
+                <translation lang="nl_NL">Uitgenodigd</translation>
+            </translations>
+        </property>
+        <property key="translation_Speed_up_your_collaboration" type="translatableString" required="false">
+            <caption>Speed up your collab...</caption>
+            <category>Translation Share</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Speed up your collaboration!</translation>
+                <translation lang="nl_NL">Versnel uw samenwerking!</translation>
+            </translations>
+        </property>
+        <property key="translation_Sign_in_and_assign" type="translatableString" required="false">
+            <caption>Sign in and assign {...</caption>
+            <category>Translation Share</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Sign in and assign {project_roles} to your colleagues, or assign {app_roles} to your advanced users.</translation>
+                <translation lang="nl_NL">Sign in en wijs {project_roles} toe aan uw collega's of wijs {app_roles} toe aan uw geavanceerde gebruikers.</translation>
+            </translations>
+        </property>
+        <property key="translation_project_roles" type="translatableString" required="false">
+            <caption>project roles</caption>
+            <category>Translation Share</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">project roles</translation>
+                <translation lang="nl_NL">project-rollen</translation>
+            </translations>
+        </property>
+        <property key="translation_app_roles" type="translatableString" required="false">
+            <caption>app roles</caption>
+            <category>Translation Share</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">app roles</translation>
+                <translation lang="nl_NL">app-rollen</translation>
+            </translations>
+        </property>
+        <property key="translation_Failed_to_get_App_roles" type="translatableString" required="false">
+            <caption>Failed to get App ro...</caption>
+            <category>Translation Share</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Failed to get App roles!</translation>
+                <translation lang="nl_NL">Kan app-rollen niet ophalen!</translation>
+            </translations>
+        </property>
+        <property key="translation_Failed_to_get_Project_roles" type="translatableString" required="false">
+            <caption>Failed to get Projec...</caption>
+            <category>Translation Share</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Failed to get Project roles!</translation>
+                <translation lang="nl_NL">Kan project-rollen niet ophalen!</translation>
+            </translations>
+        </property>
+        <property key="translation_Invite_people_with_" type="translatableString" required="false">
+            <caption>Invite people with {...</caption>
+            <category>Translation Share</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Invite people with {project_roles} to collaborate, or invite people with {app_roles} for more advanced features of your app.</translation>
+                <translation lang="nl_NL">Nodig mensen met {project_roles} uit om samen te werken of nodig mensen met {app_roles} uit voor geavanceerdere functies van uw app.</translation>
+            </translations>
+        </property>
+        <property key="translation_Please_provide_your_custom_message_here" type="translatableString" required="false">
+            <caption>Please provide your ...</caption>
+            <category>Translation Share</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Please provide your custom message here</translation>
+                <translation lang="nl_NL">Geef hier uw aangepaste bericht op</translation>
+            </translations>
+        </property>
+        <property key="translation_Loading_roles" type="translatableString" required="false">
+            <caption>Loading roles</caption>
+            <category>Translation Share</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Loading roles</translation>
+                <translation lang="nl_NL">Rollen laden</translation>
+            </translations>
+        </property>
+        <property key="translation_Please_select_a_role" type="translatableString" required="false">
+            <caption>Please select a role</caption>
+            <category>Translation Share</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Please select a role</translation>
+                <translation lang="nl_NL">Selecteer een rol</translation>
+            </translations>
+        </property>
+        -->
+        <property key="translation_Continue_as_guest" type="translatableString" required="false">
+            <caption>Continue as guest</caption>
+            <category>Translation UserInfo</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Continue as guest</translation>
+                <translation lang="nl_NL">Ga door als gast</translation>
+            </translations>
+        </property>
+        <property key="translation_Leave_feedback_in_context_" type="translatableString" required="false">
+            <caption>Leave feedback in co...</caption>
+            <category>Translation UserInfo</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Leave feedback in context by clicking on the part of the app you want to talk about</translation>
+                <translation lang="nl_NL">Laat feedback in context achter door op het deel van de app te klikken waarover u wilt rapporteren</translation>
+            </translations>
+        </property>
+        <property key="translation_We_ask_for_your_Name_" type="translatableString" required="false">
+            <caption>We ask for your Name...</caption>
+            <category>Translation UserInfo</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">We ask for your Name and Email Address in order to identify who we can contact regarding the feedback</translation>
+                <translation lang="nl_NL">We vragen om uw naam en e-mailadres om te bepalen met wie we contact kunnen opnemen over de feedback</translation>
+            </translations>
+        </property>
+        <property key="translation_App_Switcher" type="translatableString" required="false">
+            <caption>App Switcher</caption>
+            <category>Translation AppSwitcher</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">App Switcher</translation>
+                <translation lang="nl_NL">App-schakelaar</translation>
+            </translations>
+        </property>
+        <property key="translation_Switch_between_your_apps" type="translatableString" required="false">
+            <caption>Switch between your ...</caption>
+            <category>Translation AppSwitcher</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Switch between your apps</translation>
+                <translation lang="nl_NL">Schakel tussen uw apps</translation>
+            </translations>
+        </property>
+        <property key="translation_You_need_to_sign_in_first" type="translatableString" required="false">
+            <caption>You need to sign in ...</caption>
+            <category>Translation AppSwitcher</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">You need to sign in first.</translation>
+                <translation lang="nl_NL">U moet zich eerst aanmelden.</translation>
+            </translations>
+        </property>
+        <property key="translation_Loading_your_apps" type="translatableString" required="false">
+            <caption>Loading your apps...</caption>
+            <category>Translation AppSwitcher</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Loading your apps...</translation>
+                <translation lang="nl_NL">Apps laden ...</translation>
+            </translations>
+        </property>
+        <property key="translation_View_app_on_a_mobile_device" type="translatableString" required="false">
+            <caption>View app on a mobile...</caption>
+            <category>Translation Mobile</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">View app on a mobile device</translation>
+                <translation lang="nl_NL">Bekijk app op een mobiel apparaat</translation>
+            </translations>
+        </property>
+        <property key="translation_Use_the_Mendix_mobile_app_to_instantly_view_" type="translatableString" required="false">
+            <caption>Use the Mendix mobil...</caption>
+            <category>Translation Mobile</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Use the Mendix mobile app to instantly view and test your work on a mobile device. You can do this by scanning the QR code.</translation>
+                <translation lang="nl_NL">Gebruik de Mendix mobiele app om uw werk direct op een mobiel apparaat te bekijken en te testen. Dit kunt u doen door de QR-code te scannen.</translation>
+            </translations>
+        </property>
+        <property key="translation_Dont_have_the_Mendix_mobile_" type="translatableString" required="false">
+            <caption>Don't have the Mendi...</caption>
+            <category>Translation Mobile</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Don't have the Mendix mobile app? Find more info here.</translation>
+                <translation lang="nl_NL">Heeft u de mobiele app Mendix niet? Meer info over de Mendix mobiele app vindt u hier.</translation>
+            </translations>
+        </property>
+        <property key="translation_Creating_screenshot" type="translatableString" required="false">
+            <caption>Creating screenshot....</caption>
+            <category>Translation UserMessages</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Creating screenshot...</translation>
+                <translation lang="nl_NL">Screenshot maken ...</translation>
+            </translations>
+        </property>
+        <property key="translation_Screenshot_created" type="translatableString" required="false">
+            <caption>Screenshot created</caption>
+            <category>Translation UserMessages</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Screenshot created</translation>
+                <translation lang="nl_NL">Screenshot gemaakt</translation>
+            </translations>
+        </property>
+        <property key="translation_Error" type="translatableString" required="false">
+            <caption>Error</caption>
+            <category>Translation UserMessages</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Error</translation>
+                <translation lang="nl_NL">Fout</translation>
+            </translations>
+        </property>
+        <property key="translation_Sending_feedback" type="translatableString" required="false">
+            <caption>Sending feedback...</caption>
+            <category>Translation UserMessages</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Sending feedback...</translation>
+                <translation lang="nl_NL">Feedback verzenden ...</translation>
+            </translations>
+        </property>
+        <property key="translation_Feedback_submitted" type="translatableString" required="false">
+            <caption>Feedback submitted!</caption>
+            <category>Translation UserMessages</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Feedback submitted!</translation>
+                <translation lang="nl_NL">Feedback verstuurd!</translation>
+            </translations>
+        </property>
+        <property key="translation_Email_sent" type="translatableString" required="false">
+            <caption>E-mail sent</caption>
+            <category>Translation UserMessages</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">E-mail sent</translation>
+                <translation lang="nl_NL">Email verzonden</translation>
+            </translations>
+        </property>
+        <property key="translation_Invites_sent" type="translatableString" required="false">
+            <caption>Invites sent</caption>
+            <category>Translation UserMessages</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Invites sent</translation>
+                <translation lang="nl_NL">Uitnodigingen verzonden</translation>
+            </translations>
+        </property>
+        <property key="translation_Please_wait_while_we_are_taking_a_screenshot_of_the_page" type="translatableString" required="false">
+            <caption>Please wait while we...</caption>
+            <category>Translation UserMessages</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Please wait while we are taking a screenshot of the page</translation>
+                <translation lang="nl_NL">Even geduld a.u.b. terwijl we een screenshot van de pagina maken</translation>
+            </translations>
+        </property>
+        <property key="translation_Screenshot_will_be_sent_together_with_the_feedback" type="translatableString" required="false">
+            <caption>Screenshot will be s...</caption>
+            <category>Translation UserMessages</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Screenshot will be sent together with the feedback</translation>
+                <translation lang="nl_NL">Screenshot wordt samen met de feedback verzonden</translation>
+            </translations>
+        </property>
+        <property key="translation_Error_creating_a_screenshot" type="translatableString" required="false">
+            <caption>Error creating a scr...</caption>
+            <category>Translation UserMessages</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Error creating a screenshot</translation>
+                <translation lang="nl_NL">Fout bij het maken van een screenshot</translation>
+            </translations>
+        </property>
+        <property key="translation_Thanks_for_your_feedback_We_will_come_back_to_you_soon" type="translatableString" required="false">
+            <caption>Thanks for your feed...</caption>
+            <category>Translation UserMessages</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Thanks for your feedback! We will come back to you soon!</translation>
+                <translation lang="nl_NL">Bedankt voor uw feedback! We komen snel bij u terug!</translation>
+            </translations>
+        </property>
+        <property key="translation_Error_sending_your_feedback_Please_try_again_later" type="translatableString" required="false">
+            <caption>Error sending your f...</caption>
+            <category>Translation UserMessages</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Error sending your feedback. Please try again later</translation>
+                <translation lang="nl_NL">Fout bij het verzenden van uw feedback. Probeer het later opnieuw</translation>
+            </translations>
+        </property>
+        <property key="translation_Sending_emails" type="translatableString" required="false">
+            <caption>Sending e-mails</caption>
+            <category>Translation UserMessages</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Sending e-mails</translation>
+                <translation lang="nl_NL">E-mails versturen</translation>
+            </translations>
+        </property>
+        <property key="translation_Succesfully_sent_the_email_to_your_invitees" type="translatableString" required="false">
+            <caption>Succesfully sent the email</caption>
+            <category>Translation UserMessages</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Successfully sent the e-mail to your invitees.</translation>
+                <translation lang="nl_NL">Stuur de e-mail naar uw genodigden.</translation>
+            </translations>
+        </property>
+        <property key="translation_We_have_encountered_an_error_sending_the_email_Please_try_again_later" type="translatableString" required="false">
+            <caption>Failed to send an email</caption>
+            <category>Translation UserMessages</category>
+            <description>Error message when failed to send an email.</description>
+            <translations>
+                <translation lang="en_US">We have encountered an error sending the e-mail. Please try again later.</translation>
+                <translation lang="nl_NL">Er is een fout opgetreden bij het verzenden van de e-mail. Probeer het later opnieuw.</translation>
+            </translations>
+        </property>
+        <property key="translation_Sending_invites_to_emails" type="translatableString" required="false">
+            <caption>Sending invites to e...</caption>
+            <category>Translation UserMessages</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Sending invites to e-mail(s)</translation>
+                <translation lang="nl_NL">Uitnodigingen verzenden via de mail</translation>
+            </translations>
+        </property>
+        <property key="translation_Succesfully_sent_the_invites_to_your_invitees" type="translatableString" required="false">
+            <caption>Succesfully sent the invites</caption>
+            <category>Translation UserMessages</category>
+            <description/>
+            <translations>
+                <translation lang="en_US">Successfully sent the invites to your invitees.</translation>
+                <translation lang="nl_NL">De uitnodigingen zijn succesvol verstuurd.</translation>
+            </translations>
+        </property>
+        <property key="translation_We_have_encountered_an_error_inviting_Please_try_again_later" type="translatableString" required="false">
+            <caption>Failed to send invites</caption>
+            <category>Translation UserMessages</category>
+            <description>Failed to send invites</description>
+            <translations>
+                <translation lang="en_US">We have encountered an error inviting. Please try again later.</translation>
+                <translation lang="nl_NL">Er is een fout opgetreden bij het uitnodigen. Probeer het later opnieuw.</translation>
+            </translations>
+        </property>
+    </properties>
+</widget>
